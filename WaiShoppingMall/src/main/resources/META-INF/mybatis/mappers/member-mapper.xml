@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+  <mapper namespace="com.test.imsi.member-mapper">
+  <update id="nujeok" parameterType="member">
+     
+     UPDATE login
+     SET a_point = #{a_point}
+     WHERE id=#{id}
+     
+     </update>
+  	<select id="MyPointNum" resultType="int" parameterType="String">
+      Select count(time) 
+      From point
+      Where id = #{id}
+   </select>
+   
+   <select id="myPointPaging" resultType="point" parameterType="hashmap">
+      Select *
+      From (Select Q.* , rownum as R 
+           From (Select * 
+                 From point Where id = #{id} order by time desc) Q 
+      <choose>
+         <when test="(((page-1)*10)+10) > totalnum">
+            <![CDATA[Where rownum <= #{totalnum} ]]>   
+         </when>
+         <otherwise>
+            <![CDATA[Where rownum <= ((#{page}-1)*10)+10 ]]>
+         </otherwise>
+      </choose>
+         )
+      Where R >= ((#{page}-1)*10)+1
+   </select>
+   
+  	<update id="newpoint" parameterType="member">
+  	
+  	UPDATE login
+  	SET point = #{point}
+  	WHERE id=#{id}
+  	
+  	</update>
+  	
+	<select id="memberNum" resultType="int"> 
+		select count(*) from login
+	</select>
+	
+	<select id="memberNum1" resultType="int" parameterType="String"> 
+		select count(*) from login where id like '%' || #{searchID} ||'%'
+	</select>
+	
+	<select id="memberAllData" resultType="member" parameterType="hashmap"> 
+	Select *
+		From (Select Q.* , rownum as R 
+			  From (Select * 
+			        From login 
+			        <if test="searchID != ''">
+			        	where id like '%' || #{searchID} ||'%'
+			        </if> order by m_date) Q 
+		<choose>
+			<when test="(((page-1)*10)+10) > totalnum">
+				<![CDATA[Where rownum <= #{totalnum} ]]>	
+			</when>
+			<otherwise>
+				<![CDATA[Where rownum <= ((#{page}-1)*10)+10 ]]>
+			</otherwise>
+		</choose>
+			)
+		Where R >= ((#{page}-1)*10)+1
+	</select>
+
+	
+	<select id="memberAllData1" resultType="member" parameterType="hashmap"> 
+	Select *
+		From (Select Q.* , rownum as R 
+			  From (Select * 
+			        From login where id like '%' || #{user} ||'%' order by m_date desc) Q 
+		<choose>
+			<when test="(((page-1)*10)+10) > totalnum">
+				<![CDATA[Where rownum <= #{totalnum} ]]>	
+			</when>
+			<otherwise>
+				<![CDATA[Where rownum <= ((#{page}-1)*10)+10 ]]>
+			</otherwise>
+		</choose>
+			)
+		Where R >= ((#{page}-1)*10)+1
+	</select>
+	
+	<insert id="pointcontents" parameterType="point">
+	
+	INSERT INTO point (id,point,contents,time)
+	VALUES (#{id},#{point},#{contents},#{time})
+	
+	</insert>
+	
+  	<select id="getInfo" resultType="member" parameterType="String"> 
+	
+	SELECT name,id,hp1,hp2,hp3,ad1,ad2,ad3,email,grade,point,a_point
+	FROM login
+	WHERE id=#{id}
+	
+	</select>
+	
+	<select id="login" resultType="member" parameterType="member"> 
+	
+	SELECT *
+	FROM login
+	WHERE id=#{id} and pw=#{pw}
+	
+	</select>
+
+  
+  	<select id="chkrnum" resultType="member" parameterType="member"> 
+	
+	SELECT *
+	FROM login
+	WHERE r_num1=#{r_num1} and r_num2=#{r_num2}
+	
+	</select>
+  
+    <select id="idchk" resultType="int" parameterType="String"> 
+	
+	SELECT COUNT(*)
+	FROM login
+	WHERE id=#{id}
+	
+	</select>
+  
+  	<select id="findid" resultType="String" parameterType="member"> 
+	
+	SELECT id
+	FROM login
+	WHERE name=#{name} and r_num1=#{r_num1} and r_num2=#{r_num2}
+	
+	</select>
+	
+		
+	<select id="findpw" resultType="String" parameterType="member"> 
+	
+	SELECT pw
+	FROM login
+	WHERE name=#{name} and id=#{id}
+	
+	</select>
+  
+  
+    <insert id="signup" parameterType="member">
+	
+	INSERT INTO login (name,id,pw,hp1,hp2,hp3,ad1,ad2,ad3,email,r_num1,r_num2,m_date,gender,admin,grade,point,a_point)
+	VALUES (#{name},#{id},#{pw},#{hp1},#{hp2},#{hp3},#{ad1},#{ad2},#{ad3},#{email},#{r_num1},#{r_num2},#{m_date},#{gender},#{admin},#{grade},#{point},#{a_point})
+	
+	</insert>
+	
+	<update id="update" parameterType="member">
+     
+     UPDATE login
+     SET pw=#{pw},hp1=#{hp1},hp2=#{hp2},hp3=#{hp3},ad1=#{ad1},ad2=#{ad2},ad3=#{ad3},email= #{email}
+     WHERE id=#{id}
+     
+     </update>
+  
+  	<update id="adminset" parameterType="String">
+  	
+  	UPDATE login
+  	SET admin=1
+  	WHERE id=#{id}
+  	
+  	</update>
+  	
+  	<update id="admindel" parameterType="String">
+  	
+  	UPDATE login
+  	SET admin=0
+  	WHERE id=#{id}
+  	
+  	</update>
+  
+	<update id="upgrade" parameterType="member">
+  	
+  	UPDATE login
+  	SET grade=#{grade}
+  	WHERE id=#{id}
+  	
+  	</update>  
+  
+  
+</mapper>
